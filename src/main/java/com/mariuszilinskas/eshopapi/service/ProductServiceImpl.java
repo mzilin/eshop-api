@@ -4,6 +4,7 @@ import com.mariuszilinskas.eshopapi.dto.ProductRequest;
 import com.mariuszilinskas.eshopapi.dto.ProductResponse;
 import com.mariuszilinskas.eshopapi.enums.Label;
 import com.mariuszilinskas.eshopapi.exception.EntityExistsException;
+import com.mariuszilinskas.eshopapi.exception.ResourceNotFoundException;
 import com.mariuszilinskas.eshopapi.model.Product;
 import com.mariuszilinskas.eshopapi.repository.ProductRepository;
 import com.mariuszilinskas.eshopapi.util.AppUtils;
@@ -57,7 +58,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse getProduct(int productId) {
-        return null;
+        logger.info("Getting Product product_id: '{}'", productId);
+        Product product = findProductById(productId);
+        return mapProductToResponse(product);
     }
 
     private ProductResponse mapProductToResponse(Product product) {
@@ -73,6 +76,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(int productId) {
 
+    }
+
+    private Product findProductById(int id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(Product.class, "product_id", id));
     }
 
 }
