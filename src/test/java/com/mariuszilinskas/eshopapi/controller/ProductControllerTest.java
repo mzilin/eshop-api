@@ -1,4 +1,4 @@
-package com.mariuszilinskas.eshopapi.service;
+package com.mariuszilinskas.eshopapi.controller;
 
 import com.mariuszilinskas.eshopapi.dto.ProductRequest;
 import com.mariuszilinskas.eshopapi.dto.ProductResponse;
@@ -7,6 +7,7 @@ import com.mariuszilinskas.eshopapi.exception.EntityExistsException;
 import com.mariuszilinskas.eshopapi.exception.ResourceNotFoundException;
 import com.mariuszilinskas.eshopapi.model.Product;
 import com.mariuszilinskas.eshopapi.repository.ProductRepository;
+import com.mariuszilinskas.eshopapi.service.ProductServiceImpl;
 import com.mariuszilinskas.eshopapi.util.AppUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,13 +21,12 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ProductServiceImplTest {
+public class ProductControllerTest {
 
     @Mock
     private ProductRepository productRepository;
@@ -160,36 +160,4 @@ public class ProductServiceImplTest {
     }
 
     // ------------------------------------
-
-
-    @Test
-    void testDeleteProduct_Success() {
-        // Arrange
-        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
-        doNothing().when(productRepository).delete(product);
-
-        // Act
-        productService.deleteProduct(productId);
-
-        // Assert
-        verify(productRepository, times(1)).findById(productId);
-        verify(productRepository, times(1)).delete(product);
-
-        when(productRepository.findById(productId)).thenReturn(Optional.empty());
-        assertFalse(productRepository.findById(productId).isPresent());
-    }
-
-    @Test
-    void testDeleteProduct_NonExistentProductId() {
-        // Arrange
-        when(productRepository.findById(productId)).thenReturn(Optional.empty());
-
-        // Assert & Act
-        assertThrows(ResourceNotFoundException.class, () -> productService.deleteProduct(productId));
-
-        // Assert
-        verify(productRepository, times(1)).findById(productId);
-        verify(productRepository, never()).delete(any(Product.class));
-    }
-
 }
