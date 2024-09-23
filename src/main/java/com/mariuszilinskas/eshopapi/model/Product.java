@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Entity
@@ -28,7 +28,7 @@ public class Product {
     private BigDecimal price;
 
     @Column
-    private LocalDate added_at;
+    private ZonedDateTime added_at = ZonedDateTime.now();
 
     @ElementCollection(targetClass = Label.class)
     @Enumerated(EnumType.STRING)
