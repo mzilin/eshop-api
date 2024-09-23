@@ -4,6 +4,7 @@ import com.mariuszilinskas.eshopapi.dto.ProductRequest;
 import com.mariuszilinskas.eshopapi.dto.ProductResponse;
 import com.mariuszilinskas.eshopapi.enums.Label;
 import com.mariuszilinskas.eshopapi.exception.EntityExistsException;
+import com.mariuszilinskas.eshopapi.exception.ResourceNotFoundException;
 import com.mariuszilinskas.eshopapi.model.Product;
 import com.mariuszilinskas.eshopapi.repository.ProductRepository;
 import com.mariuszilinskas.eshopapi.util.AppUtils;
@@ -18,6 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -126,4 +129,35 @@ public class ProductServiceImplTest {
 
     // ------------------------------------
 
+    @Test
+    void testGetProduct_Success() {
+        // Arrange
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+
+        // Act
+        ProductResponse response = productService.getProduct(productId);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(product.getId(), response.product_id());
+        assertEquals(product.getName(), response.name());
+        assertEquals(product.getPrice(), response.price());
+        assertEquals(AppUtils.convertEnumsToStrings(product.getLabels()), response.labels());
+
+        verify(productRepository, times(1)).findById(productId);
+    }
+
+    @Test
+    void testGetProduct_NonExistentProductId() {
+        // Arrange
+        int nonExistentId = 444;
+        when(productRepository.findById(nonExistentId)).thenReturn(Optional.empty());
+
+        // Assert & Act
+        assertThrows(ResourceNotFoundException.class, () -> productService.getProduct(nonExistentId));
+
+        verify(productRepository, times(1)).findById(nonExistentId);
+    }
+
+    // ------------------------------------
 }
