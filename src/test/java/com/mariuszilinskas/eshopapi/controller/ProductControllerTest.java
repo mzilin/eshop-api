@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = EshopApiApplication.class)
 @AutoConfigureMockMvc
-public class ProductControllerTest {
+class ProductControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -78,7 +78,7 @@ public class ProductControllerTest {
     // ------------------------------------
 
     @Test
-    public void testCreateProduct() throws Exception {
+    void testCreateProduct() throws Exception {
         // Arrange
         when(productService.createProduct(any(ProductRequest.class))).thenReturn(productResponse);
 
@@ -99,7 +99,7 @@ public class ProductControllerTest {
     // ------------------------------------
 
     @Test
-    public void testGetAllProducts() throws Exception {
+    void testGetAllProducts() throws Exception {
         // Arrange
         List<ProductResponse> productList = List.of(
                 productResponse,
@@ -129,7 +129,7 @@ public class ProductControllerTest {
     // ------------------------------------
 
     @Test
-    public void testGetProduct() throws Exception {
+    void testGetProduct() throws Exception {
         // Arrange
         when(productService.getProduct(productId)).thenReturn(productResponse);
 
@@ -148,7 +148,7 @@ public class ProductControllerTest {
     // ------------------------------------
 
     @Test
-    public void testDeleteProduct() throws Exception {
+    void testDeleteProduct() throws Exception {
         // Arrange
         doNothing().when(productService).deleteProduct(productId);
 
