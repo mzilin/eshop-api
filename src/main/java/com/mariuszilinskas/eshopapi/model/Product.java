@@ -27,8 +27,8 @@ public class Product {
     @Column
     private BigDecimal price;
 
-    @Column(name = "added_at")
-    private LocalDate addedAt;
+    @Column
+    private LocalDate added_at;
 
     @ElementCollection(targetClass = Label.class)
     @Enumerated(EnumType.STRING)
