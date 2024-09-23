@@ -103,4 +103,27 @@ public class ProductServiceImplTest {
 
     // ------------------------------------
 
+    @Test
+    void testGetAllProducts() {
+        // Arrange
+        List<Product> products = List.of(product, product2);
+
+        when(productRepository.findAll()).thenReturn(products);
+
+        // Act
+        List<ProductResponse> response = productService.getAllProducts();
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(products.size(), response.size());
+        assertEquals(product.getId(), response.get(0).product_id());
+        assertEquals(product.getName(), response.get(0).name());
+        assertEquals(product2.getId(), response.get(1).product_id());
+        assertEquals(product2.getName(), response.get(1).name());
+
+        verify(productRepository, times(1)).findAll();
+    }
+
+    // ------------------------------------
+
 }
