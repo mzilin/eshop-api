@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +25,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductResponse> getAllProducts() {
-        return null;
+        logger.info("Getting all Products");
+        List<Product> products = productRepository.findAll();
+        return products.stream()
+                .map(this::mapProductToResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
