@@ -1,9 +1,12 @@
 package com.mariuszilinskas.eshopapi.service;
 
 import com.mariuszilinskas.eshopapi.dto.ProductRequest;
+import com.mariuszilinskas.eshopapi.dto.ProductResponse;
+import com.mariuszilinskas.eshopapi.enums.Label;
 import com.mariuszilinskas.eshopapi.exception.EntityExistsException;
 import com.mariuszilinskas.eshopapi.model.Product;
 import com.mariuszilinskas.eshopapi.repository.ProductRepository;
+import com.mariuszilinskas.eshopapi.util.AppUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -20,21 +23,22 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
 
     @Override
-    public List<Product> getAllProducts() {
+    public List<ProductResponse> getAllProducts() {
         return null;
     }
 
     @Override
-    public Product getProduct(int productId) {
+    public ProductResponse getProduct(int productId) {
         return null;
     }
 
     @Override
     @Transactional
-    public Product createProduct(ProductRequest request) {
+    public ProductResponse createProduct(ProductRequest request) {
         logger.info("Creating new Product: '{}'", request.name());
         checkProductNameExists(request.name());
-        return populateNewProductWithRequestData(request);
+        Product newProduct = populateNewProductWithRequestData(request);
+        return mapProductToResponse(newProduct);
     }
 
     private void checkProductNameExists(String name) {
@@ -47,8 +51,18 @@ public class ProductServiceImpl implements ProductService {
         Product product = new Product();
         product.setName(request.name());
         product.setPrice(request.price());
-        product.setLabels(request.labels());
+        product.setLabels(AppUtils.convertStringsToEnums(request.labels(), Label.class));
         return productRepository.save(product);
+    }
+
+    private ProductResponse mapProductToResponse(Product product) {
+        return new ProductResponse(
+                product.getId(),
+                product.getName(),
+                product.getPrice(),
+                AppUtils.convertToDate(product.getAddedAt()),
+                AppUtils.convertEnumsToStrings(product.getLabels())
+        );
     }
 
     @Override
