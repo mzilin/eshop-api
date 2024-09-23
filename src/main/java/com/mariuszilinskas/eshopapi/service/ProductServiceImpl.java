@@ -74,6 +74,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public void deleteProduct(int productId) {
         logger.info("Deleting Product product_id: '{}'", productId);
         Product product = findProductById(productId);
