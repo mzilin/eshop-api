@@ -24,20 +24,6 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
 
     @Override
-    public List<ProductResponse> getAllProducts() {
-        logger.info("Getting all Products");
-        List<Product> products = productRepository.findAll();
-        return products.stream()
-                .map(this::mapProductToResponse)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public ProductResponse getProduct(int productId) {
-        return null;
-    }
-
-    @Override
     @Transactional
     public ProductResponse createProduct(ProductRequest request) {
         logger.info("Creating new Product: '{}'", request.name());
@@ -58,6 +44,20 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(request.price());
         product.setLabels(AppUtils.convertStringsToEnums(request.labels(), Label.class));
         return productRepository.save(product);
+    }
+
+    @Override
+    public List<ProductResponse> getAllProducts() {
+        logger.info("Getting all Products");
+        List<Product> products = productRepository.findAll();
+        return products.stream()
+                .map(this::mapProductToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ProductResponse getProduct(int productId) {
+        return null;
     }
 
     private ProductResponse mapProductToResponse(Product product) {
