@@ -19,7 +19,7 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, nullable = false)
-    private int product_id;
+    private int id;
 
     @Column
     private String name;
@@ -28,7 +28,7 @@ public class Product {
     private BigDecimal price;
 
     @Column
-    private ZonedDateTime added_at = ZonedDateTime.now();
+    private ZonedDateTime addedAt = ZonedDateTime.now();
 
     @ElementCollection(targetClass = Label.class)
     @Enumerated(EnumType.STRING)
