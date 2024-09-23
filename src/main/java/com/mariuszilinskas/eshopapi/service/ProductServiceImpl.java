@@ -63,6 +63,11 @@ public class ProductServiceImpl implements ProductService {
         return mapProductToResponse(product);
     }
 
+    private Product findProductById(int id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(Product.class, "product_id", id));
+    }
+
     private ProductResponse mapProductToResponse(Product product) {
         return new ProductResponse(
                 product.getId(),
@@ -75,12 +80,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(int productId) {
-
-    }
-
-    private Product findProductById(int id) {
-        return productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(Product.class, "product_id", id));
+        logger.info("Deleting Product product_id: '{}'", productId);
+        productRepository.deleteById(productId);
     }
 
 }
