@@ -1,8 +1,8 @@
 package com.mariuszilinskas.eshopapi.dto;
 
-import java.math.BigInteger;
+import java.math.BigDecimal;
 
 public record CheckoutResponse(
         CartResponse cart,
-        BigInteger total_cost
+        BigDecimal total_cost
 ) {}

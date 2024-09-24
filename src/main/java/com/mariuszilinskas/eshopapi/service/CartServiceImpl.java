@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -56,12 +57,6 @@ public class CartServiceImpl implements CartService {
         return mapCartToResponse(cartRepository.save(cart));
     }
 
-    private void checkCartNotCheckedOut(Cart cart) {
-        if (cart.isCheckedOut()) {
-            throw new CheckedOutCartException();
-        }
-    }
-
     private Set<Integer> extractProductIdsFromRequest(List<CartItemDTO> products) {
         return products.stream()
                 .map(CartItemDTO::product_id)
@@ -96,6 +91,44 @@ public class CartServiceImpl implements CartService {
         return newCartItem;
     }
 
+    @Override
+    @Transactional
+    public CheckoutResponse checkoutCart(int cartId) {
+        logger.info("Checking out Cart with id: '{}'", cartId);
+        Cart cart = findCartById(cartId);
+        checkCartNotCheckedOut(cart);
+        processCheckout(cart);
+        return createCheckoutResponse(cart);
+    }
+
+    private Cart findCartById(int cartId) {
+        return cartRepository.findById(cartId)
+                .orElseThrow(() -> new ResourceNotFoundException(Cart.class, "cart_id", cartId));
+    }
+
+    private void checkCartNotCheckedOut(Cart cart) {
+        if (cart.isCheckedOut()) {
+            throw new CheckedOutCartException();
+        }
+    }
+
+    private void processCheckout(Cart cart) {
+        BigDecimal totalCost = calculateTotalCost(cart);
+        cart.setTotalCost(totalCost);
+        cart.setCheckedOut(true);
+        cartRepository.save(cart);
+    }
+
+    private BigDecimal calculateTotalCost(Cart cart) {
+        return cart.getProducts().stream()
+                .map(cartItem -> cartItem.getProduct().getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private CheckoutResponse createCheckoutResponse(Cart cart) {
+        return new CheckoutResponse(mapCartToResponse(cart), cart.getTotalCost());
+    }
+
     private CartResponse mapCartToResponse(Cart cart) {
         return new CartResponse(
                 cart.getId(),
@@ -111,17 +144,6 @@ public class CartServiceImpl implements CartService {
                 item.getProduct().getId(),
                 item.getQuantity()
         );
-    }
-
-    @Override
-    @Transactional
-    public CheckoutResponse checkoutCart(int cartId) {
-        return null;
-    }
-
-    private Cart findCartById(int cartId) {
-        return cartRepository.findById(cartId)
-                .orElseThrow(() -> new ResourceNotFoundException(Cart.class, "cart_id", cartId));
     }
 
 }
