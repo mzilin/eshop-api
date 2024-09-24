@@ -1,6 +1,7 @@
 package com.mariuszilinskas.eshopapi.handler;
 
 import com.mariuszilinskas.eshopapi.dto.ErrorResponse;
+import com.mariuszilinskas.eshopapi.exception.CheckedOutCartException;
 import com.mariuszilinskas.eshopapi.exception.EntityExistsException;
 import com.mariuszilinskas.eshopapi.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
@@ -30,6 +31,13 @@ public class AppExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
         return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    // --------------------- Specific ------------------------------
+
+    @ExceptionHandler(CheckedOutCartException.class)
+    public ResponseEntity<ErrorResponse> handleCheckedOutCartException(CheckedOutCartException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     // -----------------------------------------------------------
