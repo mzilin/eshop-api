@@ -1,6 +1,7 @@
 package com.mariuszilinskas.eshopapi.service;
 
 import com.mariuszilinskas.eshopapi.dto.CartResponse;
+import com.mariuszilinskas.eshopapi.dto.ProductResponse;
 import com.mariuszilinskas.eshopapi.enums.Label;
 import com.mariuszilinskas.eshopapi.model.Cart;
 import com.mariuszilinskas.eshopapi.model.CartItem;
@@ -89,6 +90,26 @@ public class CartServiceImplTest {
 
     // ------------------------------------
 
+    @Test
+    void testGetAllCarts() {
+        // Arrange
+        List<Cart> carts = List.of(cart, cart2);
+
+        when(cartRepository.findAll()).thenReturn(carts);
+
+        // Act
+        List<CartResponse> response = cartService.getAllCarts();
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(carts.size(), response.size());
+        assertEquals(cart.getId(), response.get(0).cart_id());
+        assertEquals(cart.getProducts().size(), response.get(0).products().size());
+        assertEquals(cart2.getId(), response.get(1).cart_id());
+        assertEquals(cart2.getProducts().size(), response.get(1).products().size());
+
+        verify(cartRepository, times(1)).findAll();
+    }
 
     // ------------------------------------
 
