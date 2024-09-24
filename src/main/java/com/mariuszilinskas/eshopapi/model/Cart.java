@@ -25,10 +25,10 @@ public class Cart {
     private List<CartItem> products = new ArrayList<>();
 
     @Column(name = "checked_out")
-    private boolean checkedOut;
+    private boolean checkedOut = false;
 
     @Column(name = "total_cost")
-    private BigDecimal totalCost;
+    private BigDecimal totalCost = BigDecimal.valueOf(0.00);
 
     @Column(name = "created_at")
     private ZonedDateTime createdAt = ZonedDateTime.now();
