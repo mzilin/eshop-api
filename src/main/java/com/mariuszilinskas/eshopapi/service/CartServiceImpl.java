@@ -1,11 +1,10 @@
 package com.mariuszilinskas.eshopapi.service;
 
-import com.mariuszilinskas.eshopapi.dto.CartItemDTO;
-import com.mariuszilinskas.eshopapi.dto.CartResponse;
-import com.mariuszilinskas.eshopapi.dto.CheckoutResponse;
-import com.mariuszilinskas.eshopapi.dto.UpdateCartRequest;
+import com.mariuszilinskas.eshopapi.dto.*;
+import com.mariuszilinskas.eshopapi.exception.ResourceNotFoundException;
 import com.mariuszilinskas.eshopapi.model.Cart;
 import com.mariuszilinskas.eshopapi.model.CartItem;
+import com.mariuszilinskas.eshopapi.model.Product;
 import com.mariuszilinskas.eshopapi.repository.CartRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,6 +22,7 @@ public class CartServiceImpl implements CartService {
 
     private static final Logger logger = LoggerFactory.getLogger(CartServiceImpl.class);
     private final CartRepository cartRepository;
+    private final ProductService productService;
 
     @Override
     @Transactional
@@ -42,8 +43,49 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public CartResponse modifyCart(int cartId, UpdateCartRequest request) {
-        return null;
+    public CartResponse updateCart(int cartId, List<CartItemDTO> products) {
+        logger.info("Updating Cart with id: '{}'", cartId);
+
+        Cart cart = findCartById(cartId);
+        Set<Integer> requestedProductIds = extractProductIdsFromRequest(products);
+        removeAbsentCartItems(cart, requestedProductIds);
+        addOrUpdateCartItems(cart, products);
+
+        return mapCartToResponse(cartRepository.save(cart));
+    }
+
+    private Set<Integer> extractProductIdsFromRequest(List<CartItemDTO> products) {
+        return products.stream()
+                .map(CartItemDTO::product_id)
+                .collect(Collectors.toSet());
+    }
+
+    private void removeAbsentCartItems(Cart cart, Set<Integer> requestedProductIds) {
+        cart.getProducts().removeIf(cartItem ->
+                !requestedProductIds.contains(cartItem.getProduct().getId())
+        );
+    }
+
+    private void addOrUpdateCartItems(Cart cart, List<CartItemDTO> products) {
+        products.forEach(productItem -> {
+            Product product = productService.findProductById(productItem.product_id());
+            CartItem cartItem = findOrCreateCartItem(cart, product);
+            cartItem.setQuantity(productItem.quantity());
+        });
+    }
+
+    private CartItem findOrCreateCartItem(Cart cart, Product product) {
+        return cart.getProducts().stream()
+                .filter(item -> item.getProduct().getId() == product.getId())
+                .findFirst()
+                .orElseGet(() -> addNewCartItem(cart, product));
+    }
+
+    private CartItem addNewCartItem(Cart cart, Product product) {
+        CartItem newCartItem = new CartItem();
+        newCartItem.setProduct(product);
+        cart.getProducts().add(newCartItem);
+        return newCartItem;
     }
 
     private CartResponse mapCartToResponse(Cart cart) {
@@ -58,7 +100,7 @@ public class CartServiceImpl implements CartService {
 
     private CartItemDTO mapCartItemToResponse(CartItem item) {
         return new CartItemDTO(
-                item.getId(),
+                item.getProduct().getId(),
                 item.getQuantity()
         );
     }
@@ -67,6 +109,11 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public CheckoutResponse checkoutCart(int cartId) {
         return null;
+    }
+
+    private Cart findCartById(int cartId) {
+        return cartRepository.findById(cartId)
+                .orElseThrow(() -> new ResourceNotFoundException(Cart.class, "cart_id", cartId));
     }
 
 }
