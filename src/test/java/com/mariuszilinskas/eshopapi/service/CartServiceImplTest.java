@@ -2,6 +2,7 @@ package com.mariuszilinskas.eshopapi.service;
 
 import com.mariuszilinskas.eshopapi.dto.CartItemDTO;
 import com.mariuszilinskas.eshopapi.dto.CartResponse;
+import com.mariuszilinskas.eshopapi.dto.CheckoutResponse;
 import com.mariuszilinskas.eshopapi.enums.Label;
 import com.mariuszilinskas.eshopapi.exception.CheckedOutCartException;
 import com.mariuszilinskas.eshopapi.exception.ResourceNotFoundException;
@@ -40,6 +41,8 @@ public class CartServiceImplTest {
     private final int cartId = 1;
     private final Cart cart = new Cart();
     private final Cart cart2 = new Cart();
+    private final CartItem item1 = new CartItem();
+    private final CartItem item2 = new CartItem();
     private final Product product1 = new Product();
     private final Product product2 = new Product();
 
@@ -49,7 +52,6 @@ public class CartServiceImplTest {
     void setUp() {
         cart.setId(cartId);
 
-        CartItem item1 = new CartItem();
         product1.setId(1);
         product1.setName("Fancy IPA Beer");
         product1.setPrice(new BigDecimal("5.99"));
@@ -58,7 +60,6 @@ public class CartServiceImplTest {
         item1.setProduct(product1);
         item1.setQuantity(2);
 
-        CartItem item2 = new CartItem();
         product2.setId(2);
         product2.setName("Delicious Cake");
         product2.setPrice(new BigDecimal("10.11"));
@@ -196,7 +197,6 @@ public class CartServiceImplTest {
 
         assertEquals(20, response.products().stream().filter(p -> p.product_id() == 1).findFirst().get().quantity());
 
-
         verify(cartRepository, times(1)).findById(cartId);
         verify(productService, times(1)).findProductById(1);
         verify(productService, never()).findProductById(2);
@@ -234,5 +234,51 @@ public class CartServiceImplTest {
 
     // ------------------------------------
 
+    @Test
+    void testCheckoutCart_Success() {
+        // Arrange
+        when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
+        when(cartRepository.save(any(Cart.class))).thenReturn(cart);
+
+        // Act
+        CheckoutResponse response = cartService.checkoutCart(cartId);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(cart.getId(), response.cart().cart_id());
+        assertEquals(cart.getProducts().size(), response.cart().products().size());
+        assertTrue(response.cart().checked_out());
+        BigDecimal expectedTotalCost = item1.getProduct().getPrice().multiply(BigDecimal.valueOf(item1.getQuantity()))
+                .add(item2.getProduct().getPrice().multiply(BigDecimal.valueOf(item2.getQuantity())));
+        assertEquals(expectedTotalCost, response.total_cost());
+
+        verify(cartRepository, times(1)).save(any(Cart.class));
+    }
+
+    @Test
+    void testCheckoutCart_CartIsAlreadyCheckedOut() {
+        // Arrange
+        cart.setCheckedOut(true);
+        when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
+
+        // Assert & Act
+        assertThrows(CheckedOutCartException.class, () -> cartService.checkoutCart(cartId));
+
+        verify(cartRepository, times(1)).findById(cartId);
+        verify(cartRepository, never()).save(any(Cart.class));
+    }
+
+    @Test
+    void testCheckoutCart_NonExistentCartId() {
+        // Arrange
+        int nonExistentId = 444;
+        when(cartRepository.findById(nonExistentId)).thenReturn(Optional.empty());
+
+        // Assert & Act
+        assertThrows(ResourceNotFoundException.class, () -> cartService.checkoutCart(nonExistentId));
+
+        verify(cartRepository, times(1)).findById(nonExistentId);
+        verify(cartRepository, never()).save(any(Cart.class));
+    }
 
 }
