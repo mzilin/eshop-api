@@ -33,7 +33,11 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public List<CartResponse> getAllCarts() {
-        return null;
+        logger.info("Getting all Carts");
+        List<Cart> carts = cartRepository.findAll();
+        return carts.stream()
+                .map(this::mapCartToResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
