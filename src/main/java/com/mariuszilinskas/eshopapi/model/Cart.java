@@ -24,16 +24,16 @@ public class Cart {
     @JoinColumn(name = "cart_id")
     private List<CartItem> products = new ArrayList<>();
 
-    @Column
+    @Column(name = "checked_out")
     private boolean checkedOut;
 
-    @Column
+    @Column(name = "total_cost")
     private BigDecimal totalCost;
 
-    @Column
+    @Column(name = "created_at")
     private ZonedDateTime createdAt = ZonedDateTime.now();
 
-    @Column
+    @Column(name = "updated_at")
     private ZonedDateTime updatedAt = ZonedDateTime.now();
 
 }
