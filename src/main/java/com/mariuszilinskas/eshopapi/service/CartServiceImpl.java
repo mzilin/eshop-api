@@ -1,6 +1,7 @@
 package com.mariuszilinskas.eshopapi.service;
 
 import com.mariuszilinskas.eshopapi.dto.*;
+import com.mariuszilinskas.eshopapi.exception.CheckedOutCartException;
 import com.mariuszilinskas.eshopapi.exception.ResourceNotFoundException;
 import com.mariuszilinskas.eshopapi.model.Cart;
 import com.mariuszilinskas.eshopapi.model.CartItem;
@@ -47,11 +48,18 @@ public class CartServiceImpl implements CartService {
         logger.info("Updating Cart with id: '{}'", cartId);
 
         Cart cart = findCartById(cartId);
+        checkCartNotCheckedOut(cart);
         Set<Integer> requestedProductIds = extractProductIdsFromRequest(products);
         removeAbsentCartItems(cart, requestedProductIds);
         addOrUpdateCartItems(cart, products);
 
         return mapCartToResponse(cartRepository.save(cart));
+    }
+
+    private void checkCartNotCheckedOut(Cart cart) {
+        if (cart.isCheckedOut()) {
+            throw new CheckedOutCartException();
+        }
     }
 
     private Set<Integer> extractProductIdsFromRequest(List<CartItemDTO> products) {
