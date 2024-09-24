@@ -81,7 +81,11 @@ public class ProductServiceImpl implements ProductService {
         productRepository.delete(product);
     }
 
-    private Product findProductById(int id) {
+    @Override
+    /**
+     * For internal use between services
+     */
+    public Product findProductById(int id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Product.class, "product_id", id));
     }

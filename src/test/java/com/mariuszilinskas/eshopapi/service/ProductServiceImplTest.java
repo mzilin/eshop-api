@@ -192,4 +192,35 @@ public class ProductServiceImplTest {
         verify(productRepository, never()).delete(any(Product.class));
     }
 
+    // ------------------------------------
+
+    @Test
+    void testFindProductById_Success() {
+        // Arrange
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+
+        // Act
+        Product response = productService.findProductById(productId);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(product.getId(), response.getId());
+        assertEquals(product.getName(), response.getName());
+        assertEquals(product.getPrice(), response.getPrice());
+        assertEquals(product.getLabels(), response.getLabels());
+
+        verify(productRepository, times(1)).findById(productId);
+    }
+
+    @Test
+    void testFindProductById_NonExistentProductId() {
+        // Arrange
+        int nonExistentId = 444;
+        when(productRepository.findById(nonExistentId)).thenReturn(Optional.empty());
+
+        // Assert & Act
+        assertThrows(ResourceNotFoundException.class, () -> productService.findProductById(nonExistentId));
+
+        verify(productRepository, times(1)).findById(nonExistentId);
+    }
 }
