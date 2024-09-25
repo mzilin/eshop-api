@@ -156,8 +156,10 @@ class CartControllerTest {
     @Test
     void testCheckoutCart() throws Exception {
         // Arrange
-        BigDecimal totalCost = new BigDecimal("50.00");
-        CheckoutResponse checkoutResponse = new CheckoutResponse(cartResponse, totalCost);
+        BigDecimal totalCost = new BigDecimal("50.0");
+        CartResponse response = new CartResponse(cartId, cartResponse.products(), true);
+        CheckoutResponse checkoutResponse = new CheckoutResponse(response, totalCost);
+
         when(cartService.checkoutCart(cartId)).thenReturn(checkoutResponse);
 
         // Act & Assert
