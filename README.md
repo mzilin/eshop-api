@@ -60,13 +60,13 @@ Follow these steps to get the API Service up and running:
 cd eshop-api
 ```
 
-2. Clean and build the service
+2. Clean and build the microservice
 
 ```shell
 ./gradlew clean build
 ```
 
-3. Start the service
+3. Start the microservice
 
 ```shell
 ./gradlew bootRun
