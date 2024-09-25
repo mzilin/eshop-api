@@ -11,6 +11,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * This class provides REST APIs for handling CRUD operations related to products.
+ *
+ * @author Marius Zilinskas
+ */
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor

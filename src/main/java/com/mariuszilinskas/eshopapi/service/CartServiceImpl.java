@@ -18,6 +18,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Service implementation for managing shopping carts.
+ * This service handles cart creation, retrieval, updates and checkout.
+ *
+ * @author Marius Zilinskas
+ */
 @Service
 @RequiredArgsConstructor
 public class CartServiceImpl implements CartService {

@@ -17,6 +17,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Service implementation for managing products.
+ * This service handles product creation, retrieval, updates and deletion.
+ *
+ * @author Marius Zilinskas
+ */
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {

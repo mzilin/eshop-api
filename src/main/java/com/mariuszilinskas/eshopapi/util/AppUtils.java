@@ -14,6 +14,10 @@ public abstract class AppUtils {
 
     public static final String TIMESTAMP_FORMAT = "yyyy-MM-dd hh:mm:ss";
 
+    /**
+     * Converts a list of enum values to a list of lowercase strings.
+     * This is used when retrieving product labels and converting them back to string values.
+     */
     public static List<String> convertEnumsToStrings(List<? extends Enum<?>> enumValues) {
         if (enumValues == null) {
             return Collections.emptyList();
@@ -26,6 +30,10 @@ public abstract class AppUtils {
         return result;
     }
 
+    /**
+     * Converts a list of strings to a list of enum values.
+     * This is used when saving product labels to ensure they are stored as enums.
+     */
     public static <E extends Enum<E>> List<E> convertStringsToEnums(List<String> values, Class<E> enumClass) {
         if (values == null || enumClass == null) {
             return Collections.emptyList();
@@ -42,6 +50,10 @@ public abstract class AppUtils {
         return enums;
     }
 
+    /**
+     * Converts a ZonedDateTime object to a string in the format "yyyy/MM/dd".
+     * This is used for formatting the product's added date when retrieving products.
+     */
     public static String convertToDate(ZonedDateTime zonedDateTime) {
         if (zonedDateTime == null) {
             return "";
